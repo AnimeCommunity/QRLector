@@ -1,0 +1,11 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:key="auto_save"
+        android:title="Guardar automáticamente"
+        android:defaultValue="true" />
+
+    <SwitchPreferenceCompat
+        android:key="notifications"
+        android:title="Activar notificaciones"
+        android:defaultValue="false" />
+</PreferenceScreen>
