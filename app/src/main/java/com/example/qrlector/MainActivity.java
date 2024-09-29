@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
         scanButton = findViewById(R.id.scan_button);
         historyButton = findViewById(R.id.history_button);
-
+        setTitle("Escaner QR");
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
