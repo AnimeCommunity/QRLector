@@ -2,25 +2,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center">
 
     <EditText
         android:id="@+id/et_qr_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Ingrese texto o URL" />
+        android:hint="Ingrese texto o URL"
+        android:textAlignment="center"
+        android:padding="10dp"
+        android:backgroundTint="#D3D3D3"
+        android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/btn_generate_qr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generar QR" />
+        android:text="Generar QR"
+        android:layout_marginBottom="10dp" />
 
     <Button
         android:id="@+id/btn_save_qr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Guardar" />
+        android:text="Guardar"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btn_share_qr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Compartir"
+        android:layout_marginTop="10dp" />
+
 
     <ImageView
         android:id="@+id/iv_qr_code"

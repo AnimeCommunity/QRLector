@@ -1,82 +1,156 @@
 package com.example.qrlector;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Environment;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
-import com.example.qrlector.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class CreateQrActivity extends AppCompatActivity {
 
     private EditText etQRText;
-    private Button btnGenerateQR, btnSaveQR;
+    private Button btnGenerateQR, btnSaveQR, btnShareQR;
     private ImageView ivQRCode;
+    private static final int REQUEST_WRITE_STORAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_qr); // Asegúrate de que este es el nombre correcto del layout XML
+        setContentView(R.layout.activity_create_qr);
 
         etQRText = findViewById(R.id.et_qr_text);
         btnGenerateQR = findViewById(R.id.btn_generate_qr);
         btnSaveQR = findViewById(R.id.btn_save_qr);
+        btnShareQR = findViewById(R.id.btn_share_qr);
+        ivQRCode = findViewById(R.id.iv_qr_code);
 
-        ivQRCode = new ImageView(this);  // ImageView dinámico para mostrar el QR
-        addContentView(ivQRCode, new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
-
-        btnGenerateQR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                generateQRCode();
-            }
-        });
-
-        btnSaveQR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveQRCode();
-            }
-        });
+        btnGenerateQR.setOnClickListener(v -> generateQRCode());
+        btnSaveQR.setOnClickListener(v -> checkPermissionAndSave());
+        btnShareQR.setOnClickListener(v -> shareQRCode());
     }
 
     private void generateQRCode() {
-        String text = etQRText.getText().toString();
+        String text = etQRText.getText().toString().trim();
         if (text.isEmpty()) {
-            Toast.makeText(this, "Ingrese texto o URL para el QR", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Introduce un texto o URL para el QR", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        ivQRCode = findViewById(R.id.iv_qr_code);
 
         try {
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             BitMatrix bitMatrix = barcodeEncoder.encode(text, BarcodeFormat.QR_CODE, 600, 600);
             Bitmap bitmap = Bitmap.createBitmap(600, 600, Bitmap.Config.RGB_565);
+
             for (int x = 0; x < 600; x++) {
                 for (int y = 0; y < 600; y++) {
                     bitmap.setPixel(x, y, bitMatrix.get(x, y) ? 0xFF000000 : 0xFFFFFFFF);
                 }
             }
-            ivQRCode.setImageBitmap(bitmap); // Mostrar el QR en ImageView
+            ivQRCode.setImageBitmap(bitmap);
         } catch (WriterException e) {
             e.printStackTrace();
+            Toast.makeText(this, "Error al generar el código QR", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void checkPermissionAndSave() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        } else {
+            saveQRCode();
         }
     }
 
     private void saveQRCode() {
-        // Aquí puedes agregar la lógica para guardar el QR en el almacenamiento del dispositivo
-        Toast.makeText(this, "Funcionalidad de guardar pendiente", Toast.LENGTH_SHORT).show();
+        BitmapDrawable drawable = (BitmapDrawable) ivQRCode.getDrawable();
+        if (drawable == null) {
+            Toast.makeText(this, "Primero genera el código QR", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bitmap bitmap = drawable.getBitmap();
+        File directory = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "QRImages");
+
+        if (!directory.exists() && !directory.mkdirs()) {
+            Toast.makeText(this, "No se pudo crear el directorio para guardar el QR", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fileName = "QR_" + System.currentTimeMillis() + ".jpg";
+        File file = new File(directory, fileName);
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            Toast.makeText(this, "Código QR guardado en la galería", Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al guardar el código QR", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareQRCode() {
+        BitmapDrawable drawable = (BitmapDrawable) ivQRCode.getDrawable();
+        if (drawable == null) {
+            Toast.makeText(this, "Primero genera el código QR", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bitmap bitmap = drawable.getBitmap();
+
+        try {
+            File file = new File(getExternalCacheDir(), "shared_qr.png");
+            try (FileOutputStream outputStream = new FileOutputStream(file)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+            }
+
+            Uri uri = FileProvider.getUriForFile(this, "com.example.qrlector.fileprovider", file);
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("image/png");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(Intent.createChooser(shareIntent, "Compartir código QR"));
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error al compartir el código QR", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_WRITE_STORAGE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                saveQRCode();
+            } else {
+                Toast.makeText(this, "Permiso denegado. No se puede guardar el código QR.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }
