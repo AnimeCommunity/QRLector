@@ -51,6 +51,11 @@ dependencies {
     implementation("androidx.recyclerview:recyclerview:1.3.1")
 
 
+    dependencies {
+        implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+        implementation("com.google.zxing:core:3.3.3")
+    }
+
 
 
 

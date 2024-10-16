@@ -51,10 +51,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Agrega tus nuevas actividades aquí -->
-        <activity android:name=".CreateQrActivity" />
-        <activity android:name=".CreateBarcodeActivity" />
         <activity android:name=".CreateQrBarcodeActivity" />
+
+        <activity android:name=".CreateQrActivity" />
+
+        <activity android:name=".CreateBarcodeActivity" />
+
 
     </application>
 </manifest>
