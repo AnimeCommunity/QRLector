@@ -57,6 +57,9 @@
 
         <activity android:name=".CreateBarcodeActivity" />
 
+        <activity android:name=".TempCreateQrActivity" />
+
+
 
     </application>
 </manifest>

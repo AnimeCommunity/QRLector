@@ -1,3 +1,5 @@
+package com.example.qrlector;
+
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
