@@ -1,12 +1,15 @@
 package com.example.qrlector;
 
 
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
+
 import java.util.ArrayList;
 
 public class HistoryActivity extends AppCompatActivity {
@@ -15,9 +18,10 @@ public class HistoryActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applyTheme();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
-        setTitle("Historial");
+
         listView = findViewById(R.id.history_list);
         dbHelper = new DatabaseHelper(this);
 
@@ -32,5 +36,15 @@ public class HistoryActivity extends AppCompatActivity {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, qrResults);
         listView.setAdapter(adapter);
+    }
+    private void applyTheme() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = sharedPreferences.getString("theme_preference", "light");
+
+        if (theme.equals("dark")) {
+            setTheme(R.style.Theme_QRLector); // Tema oscuro
+        } else {
+            setTheme(R.style.Theme_QRLector); // Tema claro
+        }
     }
 }

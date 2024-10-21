@@ -5,8 +5,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -17,9 +15,9 @@ import com.google.zxing.LuminanceSource;
 import com.google.zxing.MultiFormatReader;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
-import com.google.zxing.RGBLuminanceSource; 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.google.zxing.RGBLuminanceSource;
 
 import java.io.IOException;
 
@@ -33,36 +31,8 @@ public class ScanQRActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_qr);
 
-
-        Button btnScanQR = findViewById(R.id.btn_scan_qr);
-        btnScanQR.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new IntentIntegrator(ScanQRActivity.this).initiateScan();
-            }
-        });
-
-
-        Button btnTakePhoto = findViewById(R.id.btn_take_photo);
-        btnTakePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivityForResult(intent, CAMERA_REQUEST_CODE);
-                }
-            }
-        });
-
-
-        Button btnSelectGallery = findViewById(R.id.btn_select_gallery);
-        btnSelectGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, GALLERY_REQUEST_CODE);
-            }
-        });
+        // Iniciar el escaneo QR automáticamente
+        new IntentIntegrator(this).initiateScan();
     }
 
     @Override
@@ -70,19 +40,20 @@ public class ScanQRActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
-
+            // Obtener imagen de la cámara
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
 
         } else if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK) {
-
+            // Obtener imagen de la galería
             Uri selectedImageUri = data.getData();
             decodeQRFromGalleryImage(selectedImageUri);
-        } else {
 
+        } else {
+            // Manejar resultado del escaneo QR
             IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null && result.getContents() != null) {
-
+                // Mostrar el contenido escaneado
                 Intent intent = new Intent(ScanQRActivity.this, ResultActivity.class);
                 intent.putExtra("qr_result", result.getContents());
                 startActivity(intent);

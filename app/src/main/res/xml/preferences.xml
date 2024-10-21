@@ -1,4 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
     <SwitchPreferenceCompat
         android:key="auto_save"
         android:title="Guardar automáticamente"
@@ -8,4 +9,18 @@
         android:key="notifications"
         android:title="Activar notificaciones"
         android:defaultValue="false" />
+
+    <ListPreference
+        android:key="theme_preference"
+        android:title="Seleccionar Tema"
+        android:entries="@array/theme_options"
+        android:entryValues="@array/theme_values"
+        android:defaultValue="light" />
+
+    <Preference
+        android:key="help_feedback"
+        android:title="Ayuda y comentarios"
+        android:summary="Enviar tus comentarios o preguntas"
+        android:onClick="openHelpForm" />
+
 </PreferenceScreen>

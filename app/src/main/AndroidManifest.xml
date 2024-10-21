@@ -4,6 +4,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera" />
 
     <application
         android:allowBackup="true"
@@ -18,18 +19,18 @@
         <activity android:name=".SettingsActivity"
             android:label="Configuraciones"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar" />
+            />
         <activity
             android:name=".HistoryActivity"
             android:label="Historial"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+
             />
         <activity
             android:name=".ResultActivity"
             android:label="Resultado"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"/>
+            />
         <activity
             android:name=".ScanQRActivity"
             android:exported="false" />
@@ -37,7 +38,7 @@
             android:name=".MainActivity"
             android:label="Escaner QR"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
