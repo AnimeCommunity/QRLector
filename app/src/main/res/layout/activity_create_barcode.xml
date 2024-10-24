@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <EditText
+        android:id="@+id/et_barcode_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Introduce el texto para el código de barras"
+        android:textAlignment="center"
+        android:padding="10dp"
+        android:backgroundTint="#D3D3D3" />
+
+    <Button
+        android:id="@+id/btn_generate_barcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generar Código de Barras"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btn_save_barcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Guardar"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btn_share_barcode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Compartir"
+        android:layout_marginTop="10dp" />
+
+
+    <ImageView
+        android:id="@+id/iv_barcode"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:contentDescription="Barcode Image"
+        android:layout_marginTop="20dp" />
+</LinearLayout>
