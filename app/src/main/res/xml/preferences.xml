@@ -6,6 +6,7 @@
 
     <SwitchPreferenceCompat
         android:key="notifications"
-        android:title="Activar notificaciones"
-        android:defaultValue="false" />
+        android:title="Habilitar notificaciones"
+        android:summary="Recibe notificaciones cuando crees o escanees códigos"
+        android:defaultValue="true" />
 </PreferenceScreen>

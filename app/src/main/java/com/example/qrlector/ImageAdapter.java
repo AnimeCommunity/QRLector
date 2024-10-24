@@ -15,10 +15,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
 
     private final List<File> images;
     private final Context context;
+    private final OnItemClickListener onItemClickListener;
 
-    public ImageAdapter(Context context, List<File> images) {
+    public interface OnItemClickListener {
+        void onItemClick(File imageFile);
+    }
+
+    public ImageAdapter(Context context, List<File> images, OnItemClickListener listener) {
         this.context = context;
         this.images = images;
+        this.onItemClickListener = listener;
     }
 
     @NonNull
@@ -32,6 +38,12 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
         Uri imageUri = Uri.fromFile(images.get(position));
         holder.imageView.setImageURI(imageUri);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(images.get(position));
+            }
+        });
     }
 
     @Override

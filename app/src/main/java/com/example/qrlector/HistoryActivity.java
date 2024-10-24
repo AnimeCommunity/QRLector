@@ -1,16 +1,16 @@
 package com.example.qrlector;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,6 @@ public class HistoryActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ImageAdapter imageAdapter;
-    private static final int REQUEST_READ_STORAGE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,24 +26,57 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         recyclerView = findViewById(R.id.history_recycler_view);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // 3 columnas
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_STORAGE);
-        } else {
-            loadImages();
+        // Carga de imágenes
+        List<File> imageFiles = getImageFiles();
+
+        if (imageFiles.isEmpty()) {
+            Toast.makeText(this, "No se encontraron imágenes en el historial", Toast.LENGTH_SHORT).show();
         }
+
+        imageAdapter = new ImageAdapter(this, imageFiles, this::onImageSelected);
+        recyclerView.setAdapter(imageAdapter);
     }
 
-    private void loadImages() {
+    private void onImageSelected(File file) {
+        // Muestra el diálogo para enviar la imagen seleccionada
+        new AlertDialog.Builder(this)
+                .setTitle("Enviar imagen")
+                .setMessage("¿Deseas enviar esta imagen?")
+                .setPositiveButton("Enviar", (dialog, which) -> sendImage(file))
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void sendImage(File file) {
+        // Obtén la URI del archivo utilizando FileProvider
+        Uri fileUri = androidx.core.content.FileProvider.getUriForFile(
+                this, getPackageName() + ".fileprovider", file);
+
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("image/*");
+        sendIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // Concede permisos de lectura
+
+        startActivity(Intent.createChooser(sendIntent, "Enviar imagen a través de"));
+    }
+
+
+
+    private List<File> getImageFiles() {
+        // Inicializamos la lista de archivos de imagen
         List<File> imageFiles = new ArrayList<>();
+
+        // Directorio para imágenes de códigos QR
         File qrDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "QRImages");
+
+        // Directorio para imágenes de códigos de barras
         File barcodeDir = new File(Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES), "Barcodes");
 
+        // Verificar si los directorios existen y cargar imágenes
         if (qrDir.exists()) {
             File[] qrFiles = qrDir.listFiles();
             if (qrFiles != null) {
@@ -67,23 +99,7 @@ public class HistoryActivity extends AppCompatActivity {
             }
         }
 
-        if (imageFiles.isEmpty()) {
-            Toast.makeText(this, "No se encontraron imágenes en el historial", Toast.LENGTH_SHORT).show();
-        }
-
-        imageAdapter = new ImageAdapter(this, imageFiles);
-        recyclerView.setAdapter(imageAdapter);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_READ_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadImages();
-            } else {
-                Toast.makeText(this, "Permiso de lectura denegado", Toast.LENGTH_SHORT).show();
-            }
-        }
+        // Devolver una lista vacía si no se encuentran archivos
+        return imageFiles.isEmpty() ? new ArrayList<>() : imageFiles;
     }
 }
